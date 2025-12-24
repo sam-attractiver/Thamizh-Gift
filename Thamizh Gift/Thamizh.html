@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>For Thamizh Azhagan 🎄</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:"Segoe UI",system-ui;
+  color:white;
+  overflow:hidden;
+}
+
+/* Background */
+.bg{
+  position:fixed;
+  inset:0;
+  background:url("background.jpg") center/cover no-repeat;
+  filter:brightness(.9);
+}
+
+/* Scenes */
+.scene{
+  position:fixed;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  padding:18px;
+  transition:opacity .6s ease, transform .6s ease;
+}
+
+.hidden{
+  opacity:0;
+  pointer-events:none;
+  transform:translateX(20vw);
+}
+
+.active{
+  opacity:1;
+  transform:translateX(0);
+}
+
+/* Frost card */
+.box{
+  background:linear-gradient(to bottom right, rgba(0,0,0,.55), rgba(0,0,0,.8));
+  padding:32px;
+  border-radius:22px;
+  max-width:380px;
+  backdrop-filter:blur(9px);
+  box-shadow:inset 0 0 18px rgba(255,255,255,.1);
+}
+
+/* CHARACTER GLOW — ONLY STAGE 1 */
+#char{
+  width:100%;
+  margin-top:12px;
+  cursor:pointer;
+
+  filter:drop-shadow(0 0 34px rgba(255,80,80,.85));
+
+  animation:breath 2.8s infinite ease-in-out;
+  transition:transform .3s;
+}
+
+#char:hover{
+  transform:scale(1.06);
+}
+
+@keyframes breath{
+  0%{transform:scale(1)}
+  50%{transform:scale(1.03)}
+  100%{transform:scale(1)}
+}
+
+/* Stage 2 — NO glow */
+#char.noglow{
+  filter:none;
+  animation:none;
+}
+
+/* Puzzle Grid */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin-top:14px;
+}
+
+/* Puzzle Card */
+.card{
+  height:92px;
+  border-radius:14px;
+  cursor:pointer;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:26px;
+  user-select:none;
+
+  background:url("puzzlecard.jpg") center/cover no-repeat;
+
+  transition:transform .35s, box-shadow .35s, filter .35s;
+}
+
+/* Hover shimmer */
+.card:hover{
+  transform:scale(1.08);
+  filter:brightness(1.1);
+}
+
+/* Revealed State */
+.card.revealed{
+  background:rgba(220,20,40,.8) !important;
+  box-shadow:0 0 28px rgba(255,0,0,.8);
+}
+
+/* ❄ Smooth Snow (Top → Bottom Only) */
+.snow{
+  position:fixed;
+  top:-10px;
+  color:white;
+  pointer-events:none;
+  animation:fall linear infinite;
+}
+
+@keyframes fall{
+  to{transform:translateY(110vh);}
+}
+
+/* Footer */
+.footer{
+  position:fixed;
+  bottom:10px;
+  width:100%;
+  text-align:center;
+  font-size:12px;
+  opacity:.9;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="bg"></div>
+
+<!-- Background music -->
+<audio id="music" src="lastchristmas.mp3" loop></audio>
+
+<!-- STAGE 1 -->
+<div class="scene active" id="s1">
+  <div class="box">
+    <h1>For Thamizh Azhagan 🎄</h1>
+    <p>Tap me 👇</p>
+
+    <img id="char" src="tyler.png" onclick="toPuzzle()">
+  </div>
+</div>
+
+<!-- STAGE 2 -->
+<div class="scene hidden" id="s2">
+  <div class="box">
+    <h1>Solve the Puzzle 😏</h1>
+    <p>Click the boxes in order</p>
+
+    <div class="grid" id="grid"></div>
+
+    <br>
+
+    <i>
+      “Real ones stay — even when the world changes.”
+    </i>
+  </div>
+</div>
+
+<!-- STAGE 3 -->
+<div class="scene hidden" id="s3">
+  <div class="box">
+    <h1>Merry Christmas 🎄</h1>
+
+    <p>
+From 6th grade to now —
+you’ve always been there.
+
+Same sarcasm.
+Same chaos.
+Same real one 🤝
+    </p>
+  </div>
+</div>
+
+<div class="footer">
+  By - @sam_attractiver & ChatGPT
+</div>
+
+<script>
+const CODE = ["X","M","A","S","2","0","2","5"];
+let step = 0;
+
+function swap(a,b){
+  document.getElementById(a).classList.add("hidden");
+  document.getElementById(a).classList.remove("active");
+
+  document.getElementById(b).classList.remove("hidden");
+  document.getElementById(b).classList.add("active");
+}
+
+/* Stage 1 -> Stage 2 with music play */
+function toPuzzle(){
+  const char = document.getElementById("char");
+  char.classList.add("noglow");
+  swap("s1","s2");
+
+  // Play music after first user interaction
+  const music = document.getElementById("music");
+  if (music.paused) {
+    music.play().catch(err => console.log("Music play prevented:", err));
+  }
+}
+
+/* Build Puzzle */
+const grid = document.getElementById("grid");
+
+CODE.forEach((letter,i)=>{
+  let card = document.createElement("div");
+  card.className = "card";
+
+  card.onclick = ()=>{
+    if(i !== step) return;
+
+    card.classList.add("revealed");
+    card.style.backgroundImage = "none";
+    card.innerText = letter;
+
+    step++;
+
+    if(step === CODE.length){
+      setTimeout(()=>{
+        swap("s2","s3");
+      },900);
+    }
+  }
+
+  grid.appendChild(card);
+});
+
+/* Smooth Snow Generator — Gradual Loop */
+function createSnow(){
+  let s = document.createElement("div");
+  s.className = "snow";
+  s.innerText = "❄";
+  s.style.left = Math.random() * 100 + "vw";
+  s.style.animationDuration = (6 + Math.random() * 6) + "s";
+  s.style.fontSize = (10 + Math.random() * 16) + "px";
+  s.style.opacity = 0.7;
+  document.body.appendChild(s);
+
+  // Remove snow after it finishes falling
+  setTimeout(()=>s.remove(), (6 + Math.random() * 6)*1000);
+}
+
+// Create snow continuously
+setInterval(createSnow, 200);
+</script>
+
+</body>
+</html>
